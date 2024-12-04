@@ -1,5 +1,5 @@
 [package]
-name = "axum-sqlite-api"
+name = "todo_axum"
 version = "0.1.0"
 edition = "2021"
 
