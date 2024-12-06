@@ -3,8 +3,11 @@ mod models;
 
 use axum::{routing::get, Router};
 use handlers::todo::{create_todo, delete_todo, get_todo, list_todos, update_todo};
+use http::header::{AUTHORIZATION, CONTENT_TYPE};
+use http::Method;
 use sqlx::SqlitePool;
 use std::sync::Arc;
+use tower_http::cors::{Any, CorsLayer};
 
 #[tokio::main]
 async fn main() {
@@ -35,6 +38,12 @@ async fn main() {
     .await
     .expect("Failed to create table");
 
+    // (Any) this is only for dev env ;; in prod you shold change this to explicit values - TODO
+    let cors = CorsLayer::new()
+        .allow_origin(Any)
+        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
+        .allow_headers([CONTENT_TYPE, AUTHORIZATION]);
+
     // Create router
     let app = Router::new()
         .route("/todos", get(list_todos).post(create_todo))
@@ -42,6 +51,7 @@ async fn main() {
             "/todos/:id",
             get(get_todo).put(update_todo).delete(delete_todo),
         )
+        .layer(cors)
         .with_state(Arc::new(pool));
 
     // Start server
