@@ -15,4 +15,9 @@ export interface UpdateTodoInput {
   completed?: boolean;
 }
 
+export interface TodoItemProps {
+  todo: Todo;
+  onDelete?: (id: number) => void;
+  onUpdate?: (todo: Todo) => void;
+}
 
