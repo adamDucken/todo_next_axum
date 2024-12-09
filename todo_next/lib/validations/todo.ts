@@ -6,5 +6,4 @@ export const todoSchema = z.object({
   completed: z.boolean().default(false),
 });
 
-export type Todo = z.infer<typeof todoSchema>;
 

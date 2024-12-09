@@ -6,7 +6,7 @@ class TodoApiError extends Error {
     message: string,
     public status: number,
     public statusText: string,
-    public data?: any
+    public data?: string
   ) {
     super(message);
     this.name = 'TodoApiError';
