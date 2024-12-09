@@ -1,4 +1,3 @@
-// Types for better type safety and documentation
 export interface Todo {
   id: number;
   title: string;
@@ -15,9 +14,14 @@ export interface UpdateTodoInput {
   completed?: boolean;
 }
 
-export interface TodoItemProps {
-  todo: Todo;
-  onDelete?: (id: number) => void;
-  onUpdate?: (todo: Todo) => void;
+export interface TodosContextType {
+  todos: Todo[];
+  refreshTodos: () => Promise<void>;
+  isLoading: boolean;
 }
 
+export interface TodoItemProps {
+  todo: Todo;
+  onUpdate?: () => void;
+  onDelete?: () => void;
+}
