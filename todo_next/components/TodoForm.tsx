@@ -1,25 +1,30 @@
+// components/NewTodoForm.tsx
 'use client'
 
 import { useState } from 'react'
-import { createTodo } from '@/lib/axum_api'
+import { createTodo } from '@/lib/todo_api'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { useTodos } from '@/contexts/TodosContext'
 
 export default function NewTodoForm() {
   const [title, setTitle] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const { refreshTodos } = useTodos()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!title.trim()) return
 
+    setIsLoading(true)
     try {
       await createTodo({ title, completed: false })
       setTitle('')
-      // might want to implement a way to add this new todo to the list
-      // now, we'll just log the success
-      console.log('Todo created successfully')
+      refreshTodos()
     } catch (error) {
       console.error('Failed to create todo:', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -31,10 +36,11 @@ export default function NewTodoForm() {
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Add a new todo..."
         className="flex-grow"
+        disabled={isLoading}
       />
-      <Button type="submit">Add</Button>
+      <Button type="submit" disabled={isLoading}>
+        {isLoading ? 'Adding...' : 'Add'}
+      </Button>
     </form>
   )
 }
-
-
