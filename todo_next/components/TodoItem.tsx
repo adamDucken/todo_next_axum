@@ -1,31 +1,39 @@
+// components/TodoItem.tsx
 'use client'
 
 import { useState } from 'react'
-import { updateTodo, deleteTodo } from '@/lib/axum_api'
+import { updateTodo, deleteTodo } from '@/lib/todo_api'
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
 import { Trash2 } from 'lucide-react'
+import type { TodoItemProps } from '@/types/todo_types'
 
-export default function TodoItem({ todo }) {
+export default function TodoItem({ todo, onUpdate, onDelete }: TodoItemProps) {
   const [isCompleted, setIsCompleted] = useState(todo.completed)
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleToggle = async () => {
+    setIsLoading(true)
     try {
-      const updatedTodo = await updateTodo(todo.id, { ...todo, completed: !isCompleted })
-      setIsCompleted(updatedTodo.completed)
+      await updateTodo(todo.id, { ...todo, completed: !isCompleted })
+      setIsCompleted(!isCompleted)
+      onUpdate?.()
     } catch (error) {
       console.error('Failed to update todo:', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
   const handleDelete = async () => {
+    setIsLoading(true)
     try {
       await deleteTodo(todo.id)
-      // You might want to implement a way to remove this item from the list
-      // For now, we'll just log the success
-      console.log('Todo deleted successfully')
+      onDelete?.()
     } catch (error) {
       console.error('Failed to delete todo:', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -36,6 +44,7 @@ export default function TodoItem({ todo }) {
           checked={isCompleted}
           onCheckedChange={handleToggle}
           id={`todo-${todo.id}`}
+          disabled={isLoading}
         />
         <label
           htmlFor={`todo-${todo.id}`}
@@ -44,11 +53,14 @@ export default function TodoItem({ todo }) {
           {todo.title}
         </label>
       </div>
-      <Button variant="ghost" size="icon" onClick={handleDelete}>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={handleDelete}
+        disabled={isLoading}
+      >
         <Trash2 className="h-4 w-4" />
       </Button>
     </li>
   )
 }
-
-
