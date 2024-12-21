@@ -1,11 +1,12 @@
+mod db_init;
 mod handlers;
 mod models;
 
 use axum::{routing::get, Router};
+use db_init::init_db;
 use handlers::todo::{create_todo, delete_todo, get_todo, list_todos, update_todo};
 use http::header::{AUTHORIZATION, CONTENT_TYPE};
 use http::Method;
-use sqlx::SqlitePool;
 use std::sync::Arc;
 use tower_http::cors::{Any, CorsLayer};
 
@@ -17,26 +18,7 @@ async fn main() {
     // Load environment variables
     dotenv::dotenv().ok();
 
-    // Create SQLite pool
-    let database_url =
-        std::env::var("DATABASE_URL").unwrap_or_else(|_| "sqlite:todos.db".to_string());
-    let pool = SqlitePool::connect(&database_url)
-        .await
-        .expect("Failed to create pool");
-
-    // Initialize the database
-    sqlx::query(
-        r#"
-        CREATE TABLE IF NOT EXISTS todos (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            completed BOOLEAN NOT NULL DEFAULT 0
-        )
-        "#,
-    )
-    .execute(&pool)
-    .await
-    .expect("Failed to create table");
+    let pool = init_db().await;
 
     // (Any) this is only for dev env ;; in prod you shold change this to explicit values - TODO
     let cors = CorsLayer::new()
