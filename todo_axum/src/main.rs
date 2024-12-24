@@ -1,30 +1,22 @@
+mod cors;
 mod handlers;
 mod init_db;
 mod models;
 mod router_builder;
 
 use axum::{routing::get, Router};
+use cors::create_cors_layer;
 use handlers::todo::{create_todo, delete_todo, get_todo, list_todos, update_todo};
-use http::header::{AUTHORIZATION, CONTENT_TYPE};
-use http::Method;
 use init_db::init_db;
-use router_builder::RouterBuilder;
 use std::sync::Arc;
-use tower_http::cors::{Any, CorsLayer};
 
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt::init();
-
     dotenv::dotenv().ok();
 
     let pool = init_db().await;
-
-    // (Any) this is only for dev env ;; in prod you shold change this to explicit values - TODO
-    let cors = CorsLayer::new()
-        .allow_origin(Any)
-        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
-        .allow_headers([CONTENT_TYPE, AUTHORIZATION]);
+    let cors = create_cors_layer();
 
     let app = Router::new()
         .route("/todos", get(list_todos).post(create_todo))
