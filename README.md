@@ -3,7 +3,7 @@
 ![Todo App](./todo_app.png)
 
 
-A full-stack Todo application built with **Next.js** for the frontend and **Axum** for the backend. The app allows you to manage your tasks with a clean interface and seamless backend integration.
+A full-stack Todo application built with **Next.js** for the frontend(BFF) and **Axum** for the backend. The app allows you to manage your tasks with a clean interface and seamless backend integration.
 
 ## Prerequisites
 
